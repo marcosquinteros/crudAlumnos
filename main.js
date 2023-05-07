@@ -1,56 +1,114 @@
-// DOM Elements
+const formulario = document.getElementById("formulario-producto");
 
-const studentForm = document.getElementById("studentForm");
-const studensContainer = document.querySelector(".students");
+formulario.addEventListener("submit", guardarProducto);
 
-const nameInput = studentForm["name"];
-const ageInput = studentForm["age"];
-const rollInput = studentForm["roll"];
+function guardarProducto(event) {
+  event.preventDefault();
 
-const students = JSON.parse(localStorage.getItem("students")) || [];
+  const codigo = document.getElementById("codigo").value;
+  const categoria = document.getElementById("categoria").value;
+  const nombre = document.getElementById("nombre").value;
+  const precio = document.getElementById("precio").value;
+  const descripcion = document.getElementById("descripcion").value;
+  const url = document.getElementById("url").value;
 
-const addStudent = (name, age, roll) => {
-  students.push({
-    name,
-    age,
-    roll,
+  const producto = {
+    codigo,
+    categoria,
+    nombre,
+    precio,
+    descripcion,
+    url,
+  };
+
+  let productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+  productos.push(producto);
+  localStorage.setItem("productos", JSON.stringify(productos));
+  formulario.reset();
+  cargarProductos();
+}
+
+// tabla
+
+const tablaProductos = document.getElementById("tabla-productos");
+const tbody = tablaProductos.querySelector("tbody");
+
+cargarProductos();
+
+function cargarProductos() {
+  tbody.innerHTML = "";
+
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+  productos.forEach((producto, indice) => {
+    const fila = document.createElement("tr");
+
+    const columnaImagen = document.createElement("td");
+    const imagen = document.createElement("img");
+    imagen.src = producto.url;
+    imagen.alt = producto.nombre;
+    imagen.style.width = "100px";
+    columnaImagen.appendChild(imagen);
+    fila.appendChild(columnaImagen);
+
+    const columnaNombre = document.createElement("td");
+    columnaNombre.textContent = producto.nombre;
+    fila.appendChild(columnaNombre);
+
+    const columnaPrecio = document.createElement("td");
+    columnaPrecio.textContent = producto.precio;
+    fila.appendChild(columnaPrecio);
+
+    // const columnaDescripcion = document.createElement("td");
+    // columnaDescripcion.textContent = producto.descripcion;
+    // fila.appendChild(columnaDescripcion);
+
+    const columnaAcciones = document.createElement("td");
+    const botonEliminar = document.createElement("button");
+    botonEliminar.textContent = "Eliminar";
+    botonEliminar.addEventListener("click", () => {
+      eliminarProducto(indice);
+      cargarProductos(); // Recargar la tabla después de eliminar el producto
+    });
+    columnaAcciones.appendChild(botonEliminar);
+    fila.appendChild(columnaAcciones);
+
+    tbody.appendChild(fila);
   });
+}
 
-  localStorage.setItem("students", JSON.stringify(students));
+// Paso 4: Función para eliminar un producto del localStorage
+function eliminarProducto(indice) {
+  // Obtener los productos del localStorage
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
 
-  return { name, age, roll };
-};
+  // Eliminar el producto del arreglo por su índice
+  productos.splice(indice, 1);
 
-const createStudentElement = ({ name, age, roll }) => {
-  const studentDiv = document.createElement("div");
-  const studentName = document.createElement("h2");
-  const studentAge = document.createElement("p");
-  const studentRoll = document.createElement("p");
+  // Actualizar el localStorage con el arreglo actualizado
+  localStorage.setItem("productos", JSON.stringify(productos));
+}
 
-  studentName.innerText = "Student name: " + name;
-  studentAge.innerText = "Student age: " + age;
-  studentRoll.innerText = "Student roll: " + roll;
+const myModal = document.getElementById("myModal");
+const myInput = document.getElementById("myInput");
 
-  studentDiv.append(studentName, studentAge, studentRoll);
-  studensContainer.appendChild(studentDiv);
+myModal.addEventListener("shown.bs.modal", () => {
+  myInput.focus();
+});
 
-  studensContainer.style.display = students.length === 0 ? "none" : "flex";
-};
-studensContainer.style.display = students.length === 0 ? "none" : "flex";
+// cards
 
-students.forEach(createStudentElement);
+const cards = document.querySelectorAll(".cards");
 
-studentForm.onsubmit = (e) => {
-  e.preventDefault();
+const img = document.createElement("img");
+img.setAttribute("src", producto.url);
 
-  const newStudent = addStudent(
-    nameInput.value,
-    ageInput.value,
-    rollInput.value
-  );
+const nombre = document.createElement("h2");
+nombre.textContent(producto.nombre);
 
-  createStudentElement(newStudent);
-  nameInput.value = "";
-  ageInput.value = "";
-  rollInput.value = "";
-};
+const precio = document.createElement("p");
+precio.textContent(producto.precio);
+
+const button = document.createElement("button");
+button.setAttribute("btn btn-primary");
